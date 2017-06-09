@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import {withRouter} from "react-router-dom";
 
-
-export default class Login extends Component {
+class Login extends Component {
 
     constructor() {
         super();
@@ -30,8 +30,8 @@ export default class Login extends Component {
                 return response.text();
             })
             .then(token => { 
-                console.log(token); 
-                //browserHistory.push();
+                localStorage.setItem('auth-token', token);
+                this.props.history.push("/timeline");
             })
             .catch(mensagem =>  { this.setState({ msg: 'Não foi possível fazer login' }) });
     }
@@ -52,3 +52,5 @@ export default class Login extends Component {
         );
     }
 }
+
+export default withRouter(Login);

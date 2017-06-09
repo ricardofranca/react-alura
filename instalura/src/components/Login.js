@@ -3,10 +3,13 @@ import {withRouter} from "react-router-dom";
 
 class Login extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
 
-        this.state = { msg: '' };
+        const params  = new URLSearchParams(this.props.location.search);
+        const msg = params.get('msg');
+
+        this.state = { msg: msg };
         //this.envia = this.envia.bind(this); //can use like this or on the render as below
     }
 

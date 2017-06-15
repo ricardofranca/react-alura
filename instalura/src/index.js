@@ -25,7 +25,10 @@ ReactDOM.render(
         <Router>
             <Switch>
                 <Route exact path="/" component={Login} />
-                <Route path="/timeline" render={() => { return verifyAuth(<App />) }} />
+                <Route path="/timeline/" exact render={() => { return verifyAuth(<App />) }} />
+                <Route path="/timeline/:login" component={App} />
+                {/* example using optional parameters: */}
+                {/*<Route path="/timeline/:login?" component={App} /> */}
                 <Route path="/logout" component={Logout} />
             </Switch>
         </Router>

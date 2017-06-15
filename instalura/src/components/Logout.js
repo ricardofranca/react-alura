@@ -5,7 +5,7 @@ class Logout extends Component {
 
     componentWillMount() {
         localStorage.removeItem('auth-token');
-        this.props.history.push("/login");
+        this.props.history.push("/");
     }
 
     render() {

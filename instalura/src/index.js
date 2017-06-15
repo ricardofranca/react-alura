@@ -18,7 +18,6 @@ function verifyAuth(component) {
 }
 
 ReactDOM.render(
-
     (
         // can't destruct browserHistory from react-router-dom
         // <Router history={browserHistory}>

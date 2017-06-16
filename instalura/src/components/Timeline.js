@@ -3,28 +3,47 @@ import FotoItem from './FotoItem';
 
 export default class Timeline extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = { fotos: [] };
+        this.login = this.getLoginFromProps(props);
     }
 
-    componentDidMount() {
+    getLoginFromProps(props) {
+        if (props === undefined || props.match === undefined || props.match.params === undefined || props.match.params.login === undefined)
+            return undefined;
+
+        return props.match.params.login;
+    }
+
+    carregarFotos() {
         let urlPerfil;
 
-        if (this.props === undefined || this.props.match === undefined || this.props.match.params === undefined || this.props.match.params.login === undefined) {
+        if (this.login === undefined) {
             let token = localStorage.getItem('auth-token');
             urlPerfil = `http://localhost:8080/api/fotos?X-AUTH-TOKEN=${token}`;
         }
         else {
-            urlPerfil = `http://localhost:8080/api/public/fotos/${this.props.match.params.login}`;
+            urlPerfil = `http://localhost:8080/api/public/fotos/${this.login}`;
         }
-
 
         fetch(urlPerfil)
             .then(response => response.json())
             .then(fotos => {
                 this.setState({ fotos: fotos })
             });
+    }
+
+    componentDidMount() {
+        this.carregarFotos(this.props);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        let login = this.getLoginFromProps(nextProps);
+        if (login != undefined) {
+            this.login = login;
+            this.carregarFotos();
+        }
     }
 
     render() {

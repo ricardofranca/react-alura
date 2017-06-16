@@ -55,6 +55,44 @@ export default class Timeline extends Component {
         });
     }
 
+    comenta(fotoId, textoComentario) {
+        let token = localStorage.getItem('auth-token');
+        const requestInfo = {
+            method: 'POST',
+            body: JSON.stringify({ texto: textoComentario }),
+            headers: new Headers({ 'Content-type': 'application/json' })
+        };
+
+        fetch(`http://localhost:8080/api/fotos/${fotoId}/comment?X-AUTH-TOKEN=${token}`, requestInfo)
+            .then(response => {
+                if (response.ok)
+                    return response.json();
+                throw new Error("Não foi possível comentar");
+            })
+            .then(novoComentario => {
+                Pubsub.publish('novos-comentarios', { fotoId: fotoId, novoComentario });
+            });
+    }
+
+    like(fotoId) {
+        let token = localStorage.getItem('auth-token');
+        let data = {
+            method: 'POST'
+        };
+
+        fetch(`http://localhost:8080/api/fotos/${fotoId}/like?X-AUTH-TOKEN=${token}`, data)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("não foi possível realizar o like da foto");
+                }
+            })
+            .then(liker => {
+                Pubsub.publish('atualiza-liker', { fotoId: fotoId, liker });
+            });
+    }
+
     render() {
         return (
             <div className="fotos container">
@@ -63,7 +101,7 @@ export default class Timeline extends Component {
                     transitionEnterTimeout={500}
                     transitionLeaveTimeout={300}>
                     {
-                        this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} />)
+                        this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} comenta={this.comenta} like={this.like} />)
                     }
                 </ReactCSSTransitionGroup>
             </div>

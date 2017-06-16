@@ -2,10 +2,38 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 class FotoAtualizacoes extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = { likeada: this.props.foto.likeada };
+    }
+
+    like(event) {
+        event.preventDefault();
+
+        let token = localStorage.getItem('auth-token');
+        let data = {
+            method: 'POST'
+        };
+
+        fetch(`http://localhost:8080/api/fotos/${this.props.foto.id}/like?X-AUTH-TOKEN=${token}`, data)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error("não foi possível realizar o like da foto");
+                }
+            })
+            .then(liker => {
+                this.setState({ likeada: !this.state.likeada });
+            });
+
+    }
+
     render() {
         return (
             <section className="fotoAtualizacoes">
-                <a href="#" className="fotoAtualizacoes-like">Likar</a>
+                <a onClick={this.like.bind(this)} href="#" className={this.state.likeada ? 'fotoAtualizacoes-like-ativo' : 'fotoAtualizacoes-like'}>Likar</a>
                 <form className="fotoAtualizacoes-form">
                     <input type="text" placeholder="Adicione um comentário..." className="fotoAtualizacoes-form-campo" />
                     <input type="submit" value="Comentar!" className="fotoAtualizacoes-form-submit" />

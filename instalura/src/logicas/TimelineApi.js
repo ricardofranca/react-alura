@@ -1,6 +1,6 @@
 import Pubsub from 'pubsub-js';
 
-export default class TimelineStore {
+export default class TimelineApi {
 
     constructor(fotos) {
         this.fotos = fotos;
@@ -58,12 +58,11 @@ export default class TimelineStore {
             });
     }
 
-    lista(urlPerfil) {
+    static lista(urlPerfil, store) {
         fetch(urlPerfil)
             .then(response => response.json())
             .then(fotos => {
-                this.fotos = fotos;
-                Pubsub.publish('timeline', this.fotos);
+                store.dispatch({ type: 'LISTAGEM', fotos });
             });
     }
 

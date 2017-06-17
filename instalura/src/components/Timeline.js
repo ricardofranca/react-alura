@@ -51,11 +51,11 @@ export default class Timeline extends Component {
     }
 
     comenta(fotoId, textoComentario) {
-        this.props.store.comenta(fotoId, textoComentario);
+        this.props.store.dispatch(TimelineApi.comenta(fotoId, textoComentario));
     }
 
     like(fotoId) {
-        this.props.store.like(fotoId);
+        this.props.store.dispatch(TimelineApi.like(fotoId));
     }
 
     render() {

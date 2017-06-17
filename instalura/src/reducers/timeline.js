@@ -3,14 +3,21 @@
   state = vem o último estado
 */
 
+import { List } from 'immutable';
+
 export function timeline(state = [], action) {
   if (action.type === 'LISTAGEM') {
-    return action.fotos;
+    return new List(action.fotos);
   }
 
   if (action.type === 'COMENTARIO') {
-    const fotoAchada = state.find(foto => foto.id === action.fotoId);
-    fotoAchada.comentarios.push(action.novoComentario);
+    const fotoEstadoAntigo = state.find(foto => foto.id === action.fotoId);
+    const novosComentarios = fotoEstadoAntigo.comentarios.concat(action.novoComentario);
+
+    //criando um objeto novo com a referência para todos os atributos do antigo, depois troca apenas a última propriedade
+    const fotosEstadoNovo = Object.assign({}, fotoEstadoAntigo, novosComentarios);
+    const indiceDaLista = state.findIndex(foto => foto.id == action.fotoId);
+    const novaLista = state.set(indiceDaLista, fotosEstadoNovo);
     return state;
   }
 

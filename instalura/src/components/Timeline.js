@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FotoItem from './FotoItem';
-import Pubsub from 'pubsub-js';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
+import LogicaTimeline from '../logicas/LogicaTimeline';
 
 export default class Timeline extends Component {
 
@@ -9,6 +9,7 @@ export default class Timeline extends Component {
         super(props);
         this.state = { fotos: [] };
         this.login = this.getLoginFromProps(props);
+        this.logicaTimeline = new LogicaTimeline([]);
     }
 
     getLoginFromProps(props) {
@@ -29,11 +30,7 @@ export default class Timeline extends Component {
             urlPerfil = `http://localhost:8080/api/public/fotos/${this.login}`;
         }
 
-        fetch(urlPerfil)
-            .then(response => response.json())
-            .then(fotos => {
-                this.setState({ fotos: fotos })
-            });
+        this.logicaTimeline.lista(urlPerfil);
     }
 
     componentDidMount() {
@@ -49,70 +46,17 @@ export default class Timeline extends Component {
     }
 
     componentWillMount() {
-        Pubsub.subscribe('timeline', (topico, fotos) => {
-            console.log('pubsub', fotos);
+        this.logicaTimeline.subscribe(fotos => {
             this.setState({ fotos });
-        });
-
-        Pubsub.subscribe('atualiza-liker', (topico, infoLiker) => {
-            const fotoAchada = this.state.fotos.find(foto => foto.id === infoLiker.fotoId)
-            fotoAchada.likeada = !fotoAchada.likeada;
-            const possivelLiker = fotoAchada.likers.find(liker => liker.login === infoLiker.liker.login);
-
-            if (possivelLiker === undefined) {
-                fotoAchada.likers.push(infoLiker.liker);
-            } else {
-                const novosLikers = fotoAchada.likers.filter(liker => liker.login !== infoLiker.liker.login);
-                fotoAchada.likers = novosLikers;
-            }
-
-            this.setState({ fotos: this.state.fotos });
-        });
-
-        Pubsub.subscribe('novos-comentarios', (topico, infoComentario) => {
-            const fotoAchada = this.state.fotos.find(foto => foto.id === infoComentario.fotoId)
-            const novosComentarios = fotoAchada.comentarios.push(infoComentario.novoComentario)
-            this.setState({ fotos: this.state.fotos });
-        });
+        })
     }
 
     comenta(fotoId, textoComentario) {
-        let token = localStorage.getItem('auth-token');
-
-        const requestInfo = {
-            method: 'POST',
-            body: JSON.stringify({ texto: textoComentario }),
-            headers: new Headers({ 'Content-type': 'application/json' })
-        };
-
-        fetch(`http://localhost:8080/api/fotos/${fotoId}/comment?X-AUTH-TOKEN=${token}`, requestInfo)
-            .then(response => {
-                if (response.ok)
-                    return response.json();
-                throw new Error("Não foi possível comentar");
-            })
-            .then(novoComentario => {
-                Pubsub.publish('novos-comentarios', { fotoId: fotoId, novoComentario });
-            });
+        this.logicaTimeline.comenta(fotoId, textoComentario);
     }
 
     like(fotoId) {
-        let token = localStorage.getItem('auth-token');
-        let data = {
-            method: 'POST'
-        };
-
-        fetch(`http://localhost:8080/api/fotos/${fotoId}/like?X-AUTH-TOKEN=${token}`, data)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error("não foi possível realizar o like da foto");
-                }
-            })
-            .then(liker => {
-                Pubsub.publish('atualiza-liker', { fotoId: fotoId, liker });
-            });
+        this.logicaTimeline.like(fotoId);
     }
 
     render() {
@@ -123,7 +67,7 @@ export default class Timeline extends Component {
                     transitionEnterTimeout={500}
                     transitionLeaveTimeout={300}>
                     {
-                        this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} comenta={this.comenta} like={this.like} />)
+                        this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} comenta={this.comenta.bind(this)} like={this.like.bind(this)} />)
                     }
                 </ReactCSSTransitionGroup>
             </div>

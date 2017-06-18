@@ -9,7 +9,7 @@ function trocaFoto(lista, fotoId, callbackAtualizaPropriedades) {
   const fotoEstadoAntigo = lista.find(foto => foto.id === fotoId);
   const novasPropriedades = callbackAtualizaPropriedades(fotoEstadoAntigo);
   const fotosEstadoNovo = Object.assign({}, fotoEstadoAntigo, novasPropriedades);
-  const indiceDaLista = lista.findIndex(foto => foto.id == fotoId);
+  const indiceDaLista = lista.findIndex(foto => foto.id === fotoId);
   return lista.set(indiceDaLista, fotosEstadoNovo);
 }
 

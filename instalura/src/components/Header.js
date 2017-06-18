@@ -11,7 +11,6 @@ export default class Header extends Component {
 
     componentDidMount() {
         this.props.store.subscribe(() => {
-            console.log('header => setting the notificacao', this.props.store.getState().notificacao);
             this.setState({msg: this.props.store.getState().notificacao});
         });
     }
@@ -38,7 +37,7 @@ export default class Header extends Component {
                     <ul className="header-nav">
                         <li className="header-nav-item">
                             <span>{this.state.msg}</span>
-                            <a href="#">
+                            <a>
                                 ♡
                                 {/*                 ♥ */}
                                 {/* Quem deu like nas minhas fotos */}
